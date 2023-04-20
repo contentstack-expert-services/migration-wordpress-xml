@@ -274,7 +274,8 @@ function ExtractPosts() {
   helper.writeFile(
     path.join(
       process.cwd(),
-      "csMigrationData/content_types",
+      "wordPressMigrationData",
+      "content_types",
       postConfig.fileName
     ),
     JSON.stringify(postSchema, null, 4),

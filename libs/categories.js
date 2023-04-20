@@ -5,7 +5,6 @@ var mkdirp = require("mkdirp"),
   path = require("path"),
   _ = require("lodash"),
   fs = require("fs"),
-  parseString = require("xml2js").parseString,
   when = require("when");
 
 const { JSDOM } = require("jsdom");
@@ -42,21 +41,7 @@ if (!fs.existsSync(categoryFolderPath)) {
   );
 }
 
-function ExtractCategories() {
-  if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    var xml_data = helper.readXMLFile(config.xml_filename);
-    parseString(xml_data, { explicitArray: false }, function (err, result) {
-      if (err) {
-        errorLogger("failed to parse xml: ", err);
-      } else {
-        helper.writeFile(
-          path.join(config.data, config.json_filename),
-          JSON.stringify(result, null, 4)
-        );
-      }
-    });
-  }
-}
+function ExtractCategories() {}
 
 ExtractCategories.prototype = {
   customBar: null,
@@ -82,7 +67,7 @@ ExtractCategories.prototype = {
       self.customBar.start(categoryDetails.length, 0, {
         title: "Migrating Categories ",
       });
-      var slugRegExp = new RegExp("[^a-z0-9_-]+", "g");
+
       var categorydata = helper.readFile(
         path.join(categoryFolderPath, categoryConfig.fileName)
       );
@@ -90,7 +75,13 @@ ExtractCategories.prototype = {
         path.join(masterFolderPath, categoryConfig.masterfile)
       );
       var parentId = helper.readFile(
-        path.join(process.cwd(), "csMigrationData/entries/reference/en-us.json")
+        path.join(
+          process.cwd(),
+          "wordPressMigrationData",
+          "entries",
+          "reference",
+          "en-us.json"
+        )
       );
 
       categoryDetails.map(function (data, index) {
@@ -164,8 +155,10 @@ ExtractCategories.prototype = {
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      var categories = alldata.rss.channel["wp:category"];
-      var posts = alldata.rss.channel["item"];
+      var categories =
+        alldata?.rss?.channel?.["wp:category"] ||
+        alldata?.channel?.["wp:category"];
+      var posts = alldata?.rss?.channel?.["item"] || alldata?.channel?.["item"];
       var categoriesArrray = [];
       if (categories && categories.length > 0) {
         categories.map(function (categoryinfo, instanceIndex) {

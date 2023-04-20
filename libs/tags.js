@@ -3,10 +3,9 @@
  */
 var mkdirp = require("mkdirp"),
   path = require("path"),
-  _ = require("lodash"),
   fs = require("fs"),
-  parseString = require("xml2js").parseString,
-  when = require("when");
+  xml2js = require("xml2js");
+when = require("when");
 
 const cliProgress = require("cli-progress");
 const colors = require("ansi-colors");
@@ -21,8 +20,7 @@ var tagsConfig = config.modules.tag,
     config.data,
     config.entryfolder,
     tagsConfig.dirName
-  ),
-  masterFolderPath = path.resolve(config.data, "master", config.entryfolder);
+  );
 
 /**
  * Create folders and files
@@ -30,24 +28,30 @@ var tagsConfig = config.modules.tag,
 if (!fs.existsSync(tagsFolderPath)) {
   mkdirp.sync(tagsFolderPath);
   helper.writeFile(path.join(tagsFolderPath, tagsConfig.fileName));
-  mkdirp.sync(masterFolderPath);
-  helper.writeFile(
-    path.join(masterFolderPath, tagsConfig.masterfile),
-    '{"en-us":{}}'
-  );
 }
 
 function ExtractTags() {
   if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    var xml_data = helper.readXMLFile(config.xml_filename);
-    parseString(xml_data, { explicitArray: false }, function (err, result) {
+    const xmlFilePath = config.xml_filename;
+    const jsonFilePath = path.join(config.data, config.json_filename);
+    const xml = fs.readFileSync(xmlFilePath, "utf8");
+    const parser = new xml2js.Parser({
+      attrkey: "attributes",
+      charkey: "text",
+      explicitArray: false,
+    });
+    parser.parseString(xml, (err, result) => {
       if (err) {
-        errorLogger("failed to parse xml: ", err);
+        console.error(`Error parsing XML: ${err.message}`);
       } else {
-        helper.writeFile(
-          path.join(config.data, config.json_filename),
-          JSON.stringify(result, null, 4)
-        );
+        const json = JSON.stringify(result, null, 2);
+        fs.writeFile(jsonFilePath, json, "utf8", (err) => {
+          if (err) {
+            console.error(`Error writing JSON: ${err.message}`);
+          } else {
+            console.log(`XML to JSON conversion complete.`);
+          }
+        });
       }
     });
   }
@@ -80,9 +84,7 @@ ExtractTags.prototype = {
       var tagdata = helper.readFile(
         path.join(tagsFolderPath, tagsConfig.fileName)
       );
-      var tagmaster = helper.readFile(
-        path.join(masterFolderPath, tagsConfig.masterfile)
-      );
+
       tagDetails.map(function (data, index) {
         var title = data["tag_name"];
         var uid = `tags_${data["id"]}`;
@@ -102,10 +104,7 @@ ExtractTags.prototype = {
         path.join(tagsFolderPath, tagsConfig.fileName),
         JSON.stringify(tagdata, null, 4)
       );
-      helper.writeFile(
-        path.join(masterFolderPath, tagsConfig.masterfile),
-        JSON.stringify(tagmaster, null, 4)
-      );
+
       // console.log(
       //   chalk.green(`${tagDetails.length} Tags exported successfully`)
       // );
@@ -128,7 +127,7 @@ ExtractTags.prototype = {
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      var tags = alldata.rss.channel["wp:tag"];
+      var tags = alldata?.rss?.channel["wp:tag"] || alldata?.channel["wp:tag"];
       var tagsArrray = [];
       if (tags && tags.length > 0) {
         tags.map(function (taginfo) {

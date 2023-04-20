@@ -92,7 +92,8 @@ function ExtractTags() {
   helper.writeFile(
     path.join(
       process.cwd(),
-      "csMigrationData/content_types",
+      "wordPressMigrationData",
+      "content_types",
       tagsConfig.fileName
     ),
     JSON.stringify(tagsSchema, null, 4),

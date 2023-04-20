@@ -87,7 +87,8 @@ function ExtractTerms() {
   helper.writeFile(
     path.join(
       process.cwd(),
-      "csMigrationData/content_types",
+      "wordPressMigrationData",
+      "content_types",
       termsConfig.fileName
     ),
     JSON.stringify(termsSchema, null, 4),

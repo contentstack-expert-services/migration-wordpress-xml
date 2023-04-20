@@ -3,9 +3,8 @@
  */
 var mkdirp = require("mkdirp"),
   path = require("path"),
-  _ = require("lodash"),
   fs = require("fs"),
-  parseString = require("xml2js").parseString,
+  xml2js = require("xml2js"),
   when = require("when");
 
 const cliProgress = require("cli-progress");
@@ -22,8 +21,7 @@ var termsConfig = config.modules.terms,
     config.data,
     config.entryfolder,
     termsConfig.dirName
-  ),
-  masterFolderPath = path.resolve(config.data, "master", config.entryfolder);
+  );
 
 /**
  * Create folders and files
@@ -31,24 +29,30 @@ var termsConfig = config.modules.terms,
 if (!fs.existsSync(termsFolderPath)) {
   mkdirp.sync(termsFolderPath);
   helper.writeFile(path.join(termsFolderPath, termsConfig.fileName));
-  mkdirp.sync(masterFolderPath);
-  helper.writeFile(
-    path.join(masterFolderPath, termsConfig.masterfile),
-    '{"en-us":{}}'
-  );
 }
 
 function ExtractTerms() {
   if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    var xml_data = helper.readXMLFile(config.xml_filename);
-    parseString(xml_data, { explicitArray: false }, function (err, result) {
+    const xmlFilePath = config.xml_filename;
+    const jsonFilePath = path.join(config.data, config.json_filename);
+    const xml = fs.readFileSync(xmlFilePath, "utf8");
+    const parser = new xml2js.Parser({
+      attrkey: "attributes",
+      charkey: "text",
+      explicitArray: false,
+    });
+    parser.parseString(xml, (err, result) => {
       if (err) {
-        errorLogger("failed to parse xml: ", err);
+        console.error(`Error parsing XML: ${err.message}`);
       } else {
-        helper.writeFile(
-          path.join(config.data, config.json_filename),
-          JSON.stringify(result, null, 4)
-        );
+        const json = JSON.stringify(result, null, 2);
+        fs.writeFile(jsonFilePath, json, "utf8", (err) => {
+          if (err) {
+            console.error(`Error writing JSON: ${err.message}`);
+          } else {
+            console.log(`XML to JSON conversion complete.`);
+          }
+        });
       }
     });
   }
@@ -81,9 +85,7 @@ ExtractTerms.prototype = {
       var termsdata = helper.readFile(
         path.join(termsFolderPath, termsConfig.fileName)
       );
-      var termsmaster = helper.readFile(
-        path.join(masterFolderPath, termsConfig.masterfile)
-      );
+
       termsDetails.map(function (data, index) {
         var title = data["term_name"];
         var uid = `terms_${data["id"]}`;
@@ -103,10 +105,6 @@ ExtractTerms.prototype = {
       helper.writeFile(
         path.join(termsFolderPath, termsConfig.fileName),
         JSON.stringify(termsdata, null, 4)
-      );
-      helper.writeFile(
-        path.join(masterFolderPath, termsConfig.masterfile),
-        JSON.stringify(termsmaster, null, 4)
       );
       // console.log(
       //   chalk.green(`${termsDetails.length} Terms exported successfully`)
@@ -130,7 +128,8 @@ ExtractTerms.prototype = {
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      var terms = alldata.rss.channel["wp:term"];
+      var terms =
+        alldata?.rss?.channel["wp:term"] || alldata?.channel["wp:term"];
       var termsArrray = [];
       if (terms && terms.length > 0) {
         terms.map(function (terminfo) {

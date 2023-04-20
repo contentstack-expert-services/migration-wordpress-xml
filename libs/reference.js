@@ -3,10 +3,9 @@
  */
 var mkdirp = require("mkdirp"),
   path = require("path"),
-  _ = require("lodash"),
   fs = require("fs"),
-  parseString = require("xml2js").parseString,
-  when = require("when");
+  when = require("when"),
+  xml2js = require("xml2js");
 
 /**
  * Internal module Dependencies.
@@ -29,18 +28,32 @@ if (!fs.existsSync(referenceFolderPath)) {
 }
 
 function ExtractReference() {
+  var self = this;
   if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    var xml_data = helper.readXMLFile(config.xml_filename);
-    parseString(xml_data, { explicitArray: false }, function (err, result) {
+    const xmlFilePath = config.xml_filename;
+    const jsonFilePath = path.join(config.data, config.json_filename);
+    const xml = fs.readFileSync(xmlFilePath, "utf8");
+    const parser = new xml2js.Parser({
+      attrkey: "attributes",
+      charkey: "text",
+      explicitArray: false,
+    });
+    parser.parseString(xml, (err, result) => {
       if (err) {
-        errorLogger("failed to parse xml: ", err);
+        console.error(`Error parsing XML: ${err.message}`);
       } else {
-        helper.writeFile(
-          path.join(config.data, config.json_filename),
-          JSON.stringify(result, null, 4)
-        );
+        const json = JSON.stringify(result, null, 2);
+        fs.writeFile(jsonFilePath, json, "utf8", (err) => {
+          if (err) {
+            console.error(`Error writing JSON: ${err.message}`);
+          } else {
+            console.log(`XML to JSON conversion complete.`);
+          }
+        });
       }
     });
+  } else {
+    self.start();
   }
 }
 
@@ -70,25 +83,22 @@ ExtractReference.prototype = {
       resolve();
     });
   },
-  getAllreference: function () {
+  start: function () {
     var self = this;
     return when.promise(function (resolve, reject) {
-      var referencename;
-      if (filePath) {
-        //if user provide custom name of category
-        if (fs.existsSync(filePath)) {
-          referencename = fs.readFileSync(filePath, "utf-8");
-        }
-      }
-      if (referencename) {
-        referencename = referencename.split(",");
-      }
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      var referenceTags = alldata.rss.channel["wp:tag"];
-      var referenceTerms = alldata.rss.channel["wp:term"];
-      var referenceCategories = alldata.rss.channel["wp:category"];
+      var referenceTags =
+        alldata?.rss?.channel?.["wp:tag"] || alldata?.channel?.["wp:tag"] || "";
+      var referenceTerms =
+        alldata?.rss?.channel?.["wp:term"] ||
+        alldata?.channel?.["wp:term"] ||
+        "";
+      var referenceCategories =
+        alldata?.rss?.channel?.["wp:category"] ||
+        alldata?.channel?.["wp:category"] ||
+        "";
       var referenceArrray = [];
       if (
         (referenceTags && referenceTags.length > 0) ||
@@ -125,19 +135,6 @@ ExtractReference.prototype = {
       } else {
         resolve();
       }
-    });
-  },
-  start: function () {
-    var self = this;
-    return when.promise(function (resolve, reject) {
-      self
-        .getAllreference()
-        .then(function () {
-          resolve();
-        })
-        .catch(function () {
-          reject();
-        });
     });
   },
 };

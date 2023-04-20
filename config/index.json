@@ -1,5 +1,5 @@
 {
-  "data": "./csMigrationData",
+  "data": "./wordPressMigrationData",
   "backup": "./backupMigrationData",
   "xml_filename": "",
   "json_file": "",

@@ -5,8 +5,8 @@ var mkdirp = require("mkdirp"),
   path = require("path"),
   _ = require("lodash"),
   fs = require("fs"),
-  parseString = require("xml2js").parseString,
-  when = require("when");
+  when = require("when"),
+  xml2js = require("xml2js");
 
 const cliProgress = require("cli-progress");
 const colors = require("ansi-colors");
@@ -39,15 +39,25 @@ if (!fs.existsSync(authorsFolderPath)) {
 
 function ExtractAuthors() {
   if (!fs.existsSync(path.join(config.data, config.json_filename))) {
-    var xml_data = helper.readXMLFile(config.xml_filename);
-    parseString(xml_data, { explicitArray: false }, function (err, result) {
+    const xmlFilePath = config.xml_filename;
+    const jsonFilePath = path.join(config.data, config.json_filename);
+    const xml = fs.readFileSync(xmlFilePath, "utf8");
+    const parser = new xml2js.Parser({
+      attrkey: "attributes",
+      charkey: "text",
+    });
+    parser.parseString(xml, (err, result) => {
       if (err) {
-        errorLogger("failed to parse xml: ", err);
+        console.error(`Error parsing XML: ${err.message}`);
       } else {
-        helper.writeFile(
-          path.join(config.data, config.json_filename),
-          JSON.stringify(result, null, 4)
-        );
+        const json = JSON.stringify(result, null, 2);
+        fs.writeFile(jsonFilePath, json, "utf8", (err) => {
+          if (err) {
+            console.error(`Error writing JSON: ${err.message}`);
+          } else {
+            console.log(`XML to JSON conversion complete.`);
+          }
+        });
       }
     });
   }
@@ -119,9 +129,6 @@ ExtractAuthors.prototype = {
         path.join(masterFolderPath, authorConfig.masterfile),
         JSON.stringify(authormaster, null, 4)
       );
-      // console.log(
-      //   chalk.green(`\n${authorDetails.length} Authors exported successfully`)
-      // );
       resolve();
     });
   },
@@ -131,7 +138,8 @@ ExtractAuthors.prototype = {
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      var authors = alldata.rss.channel["wp:author"];
+      var authors =
+        alldata?.rss?.channel?.["wp:author"] || alldata?.channel?.["wp:author"];
       if (authors) {
         if (authors.length > 0) {
           if (!filePath) {

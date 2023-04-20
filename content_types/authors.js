@@ -3,8 +3,7 @@
  */
 var mkdirp = require("mkdirp"),
   path = require("path"),
-  fs = require("fs"),
-  _ = require("lodash");
+  fs = require("fs");
 
 /**
  * Internal module Dependencies .
@@ -128,7 +127,8 @@ function ExtractAuthors() {
   helper.writeFile(
     path.join(
       process.cwd(),
-      "csMigrationData/content_types",
+      "wordPressMigrationData",
+      "content_types",
       authorConfig.fileName
     ),
     JSON.stringify(authorsSchema, null, 4),

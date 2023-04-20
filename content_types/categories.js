@@ -110,7 +110,8 @@ function ExtractCategories() {
   helper.writeFile(
     path.join(
       process.cwd(),
-      "csMigrationData/content_types",
+      "wordPressMigrationData",
+      "content_types",
       categoriesConfig.fileName
     ),
     JSON.stringify(categoriesSchema, null, 4),
