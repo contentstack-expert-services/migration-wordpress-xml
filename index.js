@@ -17,12 +17,12 @@ global.warnLogger = require("./utils/logger")("warn").log;
 
 var modulesList = [
   "reference",
+  "assets",
   "authors",
   "categories",
-  "assets",
   "terms",
-  "tags",
   "posts",
+  "tags",
 ];
 //to create entries
 var contentList = ["authors", "categories", "posts", "terms", "tags"]; // to create content type for the entries
@@ -147,7 +147,7 @@ const XMLMigration = async () => {
         }
       } else {
         global.config.xml_filename = `${answer.csFilePath}.xml`;
-        fileCheck(`${config.xml_filename}.xml`);
+        fileCheck(`${answer.csFilePath}.xml`);
       }
     } catch (error) {
       console.log(chalk.red(error.message));

@@ -1,4 +1,7 @@
 wordPressMigrationData
 node_modules
 logs
-package-lock.json
+./package-lock.json
+1800.xml
+sitetitle.xml
+package-lock*

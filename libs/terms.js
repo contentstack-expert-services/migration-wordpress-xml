@@ -129,17 +129,26 @@ ExtractTerms.prototype = {
         path.join(config.data, config.json_filename)
       );
       var terms =
-        alldata?.rss?.channel["wp:term"] || alldata?.channel["wp:term"];
+        alldata?.rss?.channel["wp:term"] ?? alldata?.channel["wp:term"] ?? "";
       var termsArrray = [];
-      if (terms && terms.length > 0) {
-        terms.map(function (terminfo) {
-          termsArrray.push({
-            id: terminfo["wp:term_id"],
-            term_name: terminfo["wp:term_name"],
-            term_slug: terminfo["wp:term_slug"],
-            term_taxonomy: terminfo["wp:term_taxonomy"],
+      if (terms !== "") {
+        if (terms.length > 0) {
+          terms.forEach(function (terminfo) {
+            termsArrray.push({
+              id: terminfo["wp:term_id"],
+              term_name: terminfo["wp:term_name"],
+              term_slug: terminfo["wp:term_slug"],
+              term_taxonomy: terminfo["wp:term_taxonomy"],
+            });
           });
-        });
+        } else {
+          termsArrray.push({
+            id: terms["wp:term_id"],
+            term_name: terms["wp:term_name"],
+            term_slug: terms["wp:term_slug"],
+            term_taxonomy: terms["wp:term_taxonomy"],
+          });
+        }
         if (termsArrray.length > 0) {
           self.saveTerms(termsArrray);
           resolve();

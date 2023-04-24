@@ -139,8 +139,10 @@ ExtractAuthors.prototype = {
         path.join(config.data, config.json_filename)
       );
       var authors =
-        alldata?.rss?.channel?.["wp:author"] || alldata?.channel?.["wp:author"];
-      if (authors) {
+        alldata?.rss?.channel?.["wp:author"] ??
+        alldata?.channel?.["wp:author"] ??
+        "";
+      if (authors !== "") {
         if (authors.length > 0) {
           if (!filePath) {
             self.saveAuthors(authors);

@@ -114,30 +114,30 @@ ExtractTags.prototype = {
   getAllTags: function () {
     var self = this;
     return when.promise(function (resolve, reject) {
-      var tagsname;
-      if (filePath) {
-        //if user provide custom name of category
-        if (fs.existsSync(filePath)) {
-          tagsname = fs.readFileSync(filePath, "utf-8");
-        }
-      }
-      if (tagsname) {
-        tagsname = tagsname.split(",");
-      }
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      var tags = alldata?.rss?.channel["wp:tag"] || alldata?.channel["wp:tag"];
+      var tags =
+        alldata?.rss?.channel?.["wp:tag"] ?? alldata?.channel?.["wp:tag"] ?? "";
       var tagsArrray = [];
-      if (tags && tags.length > 0) {
-        tags.map(function (taginfo) {
-          tagsArrray.push({
-            id: taginfo["wp:term_id"],
-            tag_name: taginfo["wp:tag_name"],
-            tag_slug: taginfo["wp:tag_slug"],
-            description: taginfo["wp:tag_description"],
+      if (tags !== "") {
+        if (tags.length > 0) {
+          tags.forEach(function (taginfo) {
+            tagsArrray.push({
+              id: taginfo["wp:term_id"],
+              tag_name: taginfo["wp:tag_name"],
+              tag_slug: taginfo["wp:tag_slug"],
+              description: taginfo["wp:tag_description"],
+            });
           });
-        });
+        } else {
+          tagsArrray.push({
+            id: tags["wp:term_id"],
+            tag_name: tags["wp:tag_name"],
+            tag_slug: tags["wp:tag_slug"],
+            description: tags["wp:tag_description"],
+          });
+        }
         if (tagsArrray.length > 0) {
           self.saveTags(tagsArrray);
           resolve();

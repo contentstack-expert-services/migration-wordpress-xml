@@ -298,10 +298,11 @@ ExtractPosts.prototype = {
       const alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      const posts = alldata?.rss?.channel["item"] || alldata?.channel["item"];
+      const posts =
+        alldata?.rss?.channel["item"] ?? alldata?.channel["item"] ?? "";
       const blog_base_url =
-        alldata?.rss?.channel["wp:base_blog_url"] ||
-        alldata?.channel["wp:base_blog_url"] ||
+        alldata?.rss?.channel["wp:base_blog_url"] ??
+        alldata?.channel["wp:base_blog_url"] ??
         "";
       const authorId = helper.readFile(
         path.join(

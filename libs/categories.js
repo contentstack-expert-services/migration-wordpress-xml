@@ -156,16 +156,29 @@ ExtractCategories.prototype = {
         path.join(config.data, config.json_filename)
       );
       var categories =
-        alldata?.rss?.channel?.["wp:category"] ||
-        alldata?.channel?.["wp:category"];
-      var posts = alldata?.rss?.channel?.["item"] || alldata?.channel?.["item"];
+        alldata?.rss?.channel?.["wp:category"] ??
+        alldata?.channel?.["wp:category"] ??
+        "";
+      var posts =
+        alldata?.rss?.channel?.["item"] ?? alldata?.channel?.["item"] ?? "";
       var categoriesArrray = [];
-      if (categories && categories.length > 0) {
-        categories.map(function (categoryinfo, instanceIndex) {
-          if (categorisname && categorisname.length > 0) {
-            if (
-              categorisname.indexOf(categoryinfo["wp:category_nicename"]) != -1
-            ) {
+      if (categories !== "") {
+        if (categories.length > 0) {
+          categories.forEach(function (categoryinfo, instanceIndex) {
+            if (categorisname && categorisname.length > 0) {
+              if (
+                categorisname.indexOf(categoryinfo["wp:category_nicename"]) !=
+                -1
+              ) {
+                categoriesArrray.push({
+                  id: categoryinfo["wp:term_id"],
+                  title: categoryinfo["wp:cat_name"],
+                  nicename: categoryinfo["wp:category_nicename"],
+                  description: categoryinfo["wp:category_description"],
+                  parent: categoryinfo["wp:category_parent"],
+                });
+              }
+            } else {
               categoriesArrray.push({
                 id: categoryinfo["wp:term_id"],
                 title: categoryinfo["wp:cat_name"],
@@ -174,21 +187,27 @@ ExtractCategories.prototype = {
                 parent: categoryinfo["wp:category_parent"],
               });
             }
+          });
+          if (categoriesArrray.length > 0) {
+            self.saveCategories(categoriesArrray);
+            resolve();
           } else {
-            categoriesArrray.push({
-              id: categoryinfo["wp:term_id"],
-              title: categoryinfo["wp:cat_name"],
-              nicename: categoryinfo["wp:category_nicename"],
-              description: categoryinfo["wp:category_description"],
-              parent: categoryinfo["wp:category_parent"],
-            });
+            resolve();
           }
-        });
-        if (categoriesArrray.length > 0) {
-          self.saveCategories(categoriesArrray);
-          resolve();
         } else {
-          resolve();
+          categoriesArrray.push({
+            id: categories["wp:term_id"],
+            title: categories["wp:cat_name"],
+            nicename: categories["wp:category_nicename"],
+            description: categories["wp:category_description"],
+            parent: categories["wp:category_parent"],
+          });
+          if (categoriesArrray.length > 0) {
+            self.saveCategories(categoriesArrray);
+            resolve();
+          } else {
+            resolve();
+          }
         }
       } else if (posts) {
         posts.map(function (post, instanceIndex) {
