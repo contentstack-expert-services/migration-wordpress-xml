@@ -111,8 +111,8 @@ async function processChunkData(
             if (Array.isArray(categories)) {
               Object.keys(referenceId).forEach((key) => {
                 if (
-                  data["category"].find(
-                    (el) => el["$"]?.["nicename"] === referenceId[key].slug
+                  categories.find(
+                    (el) => el.attributes.nicename === referenceId[key].slug
                   )
                 ) {
                   if (referenceId[key].content_type === "terms") {
@@ -134,31 +134,30 @@ async function processChunkData(
                 }
               });
             } else {
-              if (categories !== undefined)
-                if (categories["$"]?.["domain"] !== "category") {
-                  Object.keys(referenceId).forEach((key) => {
-                    if (
-                      categories["$"]?.["nicename"] === referenceId[key].slug
-                    ) {
-                      if (referenceId[key].content_type === "terms") {
-                        postTerms.push({
-                          uid: key,
-                          _content_type_uid: referenceId[key].content_type,
-                        });
-                      } else if (referenceId[key].content_type === "tag") {
-                        postTags.push({
-                          uid: key,
-                          _content_type_uid: referenceId[key].content_type,
-                        });
-                      } else {
-                        postCategories.push({
-                          uid: key,
-                          _content_type_uid: referenceId[key].content_type,
-                        });
-                      }
+              if (categories && categories["$"]?.["domain"] !== "category") {
+                Object.keys(referenceId).forEach((key) => {
+                  if (
+                    categories.attributes.nicename === referenceId[key].slug
+                  ) {
+                    if (referenceId[key].content_type === "terms") {
+                      postTerms.push({
+                        uid: key,
+                        _content_type_uid: referenceId[key].content_type,
+                      });
+                    } else if (referenceId[key].content_type === "tag") {
+                      postTags.push({
+                        uid: key,
+                        _content_type_uid: referenceId[key].content_type,
+                      });
+                    } else {
+                      postCategories.push({
+                        uid: key,
+                        _content_type_uid: referenceId[key].content_type,
+                      });
                     }
-                  });
-                }
+                  }
+                });
+              }
             }
 
             Object.keys(authorId).forEach((key) => {

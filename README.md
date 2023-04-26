@@ -67,7 +67,7 @@ Configure your system with the package and proceed with the following steps. -
 
    ![1682406932063](image/README/1682406932063.png)
 
-10. You have to enter the path of the folder as it verifies if the path is correct or not
+10. The **"wordPressMigrationData"** folder's path, which was created when the `node index.js` code was executed, must be entered because it checks to see if the path is accurate.
     e.g.:- /user/admin/wordPressMigrationData
 
     ![1682406675464](image/README/1682406675464.png)
@@ -88,7 +88,7 @@ Configure your system with the package and proceed with the following steps. -
 
     ![1682406518782](image/README/1682406518782.png)
 
-15. Enter the path once again and your import will start.
+15. Enter the same path of **"wordPressMigrationData"** folder, once again and your import will start.
     e.g.:- /user/admin/wordPressMigrationData
 
     ![1682407032215](image/README/1682407032215.png)
