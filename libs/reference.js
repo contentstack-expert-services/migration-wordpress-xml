@@ -90,14 +90,14 @@ ExtractReference.prototype = {
         path.join(config.data, config.json_filename)
       );
       var referenceTags =
-        alldata?.rss?.channel?.["wp:tag"] || alldata?.channel?.["wp:tag"] || "";
+        alldata?.rss?.channel?.["wp:tag"] ?? alldata?.channel?.["wp:tag"] ?? "";
       var referenceTerms =
-        alldata?.rss?.channel?.["wp:term"] ||
-        alldata?.channel?.["wp:term"] ||
+        alldata?.rss?.channel?.["wp:term"] ??
+        alldata?.channel?.["wp:term"] ??
         "";
       var referenceCategories =
-        alldata?.rss?.channel?.["wp:category"] ||
-        alldata?.channel?.["wp:category"] ||
+        alldata?.rss?.channel?.["wp:category"] ??
+        alldata?.channel?.["wp:category"] ??
         "";
       var referenceArrray = [];
       if (
@@ -105,21 +105,21 @@ ExtractReference.prototype = {
         (referenceTerms && referenceTerms.length > 0) ||
         (referenceCategories && referenceCategories.length > 0)
       ) {
-        referenceTags.map(function (taginfo) {
+        referenceTags.forEach(function (taginfo) {
           referenceArrray.push({
             id: `tags_${taginfo["wp:term_id"]}`,
             slug: taginfo["wp:tag_slug"],
             content_type: "tag",
           });
         });
-        referenceTerms.map(function (terminfo) {
+        referenceTerms.forEach(function (terminfo) {
           referenceArrray.push({
             id: `terms_${terminfo["wp:term_id"]}`,
             slug: terminfo["wp:term_slug"],
             content_type: "terms",
           });
         });
-        referenceCategories.map(function (catinfo) {
+        referenceCategories.forEach(function (catinfo) {
           referenceArrray.push({
             id: `category_${catinfo["wp:term_id"]}`,
             slug: catinfo["wp:category_nicename"],

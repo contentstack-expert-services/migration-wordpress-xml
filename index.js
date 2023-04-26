@@ -21,8 +21,8 @@ var modulesList = [
   "authors",
   "categories",
   "terms",
-  "posts",
   "tags",
+  "posts",
 ];
 //to create entries
 var contentList = ["authors", "categories", "posts", "terms", "tags"]; // to create content type for the entries
