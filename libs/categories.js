@@ -126,15 +126,6 @@ ExtractCategories.prototype = {
     var self = this;
     return when.promise(function (resolve, reject) {
       var categorisname;
-      if (filePath) {
-        //if user provide custom name of category
-        if (fs.existsSync(filePath)) {
-          categorisname = fs.readFileSync(filePath, "utf-8");
-        }
-      }
-      if (categorisname) {
-        categorisname = categorisname.split(",");
-      }
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
