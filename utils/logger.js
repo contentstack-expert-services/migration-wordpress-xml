@@ -1,6 +1,7 @@
 var winston = require("winston");
 var pathLib = require("path");
 var fs = require("fs");
+var path = require("path");
 var slice = Array.prototype.slice;
 
 function makeSureLogsDir(dirPath) {
@@ -44,7 +45,7 @@ var myCustomLevels = {
 };
 
 module.exports = function (logfileName) {
-  var logsDir = __dirname + "/logs";
+  var logsDir = path.join(process.cwd(), "logs");
   makeSureLogsDir(logsDir);
   var logPath = pathLib.join(logsDir, logfileName + ".log");
 

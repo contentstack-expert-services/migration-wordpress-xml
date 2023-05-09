@@ -25,8 +25,7 @@ var categoryConfig = config.modules.categories,
     config.data,
     config.entryfolder,
     categoryConfig.dirName
-  ),
-  masterFolderPath = path.resolve(config.data, "master", config.entryfolder);
+  );
 
 /**
  * Create folders and files
@@ -34,11 +33,6 @@ var categoryConfig = config.modules.categories,
 if (!fs.existsSync(categoryFolderPath)) {
   mkdirp.sync(categoryFolderPath);
   helper.writeFile(path.join(categoryFolderPath, categoryConfig.fileName));
-  mkdirp.sync(masterFolderPath);
-  helper.writeFile(
-    path.join(masterFolderPath, categoryConfig.masterfile),
-    '{"en-us":{}}'
-  );
 }
 
 function ExtractCategories() {}
@@ -71,9 +65,7 @@ ExtractCategories.prototype = {
       var categorydata = helper.readFile(
         path.join(categoryFolderPath, categoryConfig.fileName)
       );
-      var categorymaster = helper.readFile(
-        path.join(masterFolderPath, categoryConfig.masterfile)
-      );
+
       var parentId = helper.readFile(
         path.join(
           process.cwd(),
@@ -127,15 +119,6 @@ ExtractCategories.prototype = {
         path.join(categoryFolderPath, categoryConfig.fileName),
         JSON.stringify(categorydata, null, 4)
       );
-      helper.writeFile(
-        path.join(masterFolderPath, categoryConfig.masterfile),
-        JSON.stringify(categorymaster, null, 4)
-      );
-      // console.log(
-      //   chalk.green(
-      //     `\n${categoryDetails.length} Categories exported successfully`
-      //   )
-      // );
       resolve();
     });
   },
@@ -159,8 +142,6 @@ ExtractCategories.prototype = {
         alldata?.rss?.channel?.["wp:category"] ??
         alldata?.channel?.["wp:category"] ??
         "";
-      var posts =
-        alldata?.rss?.channel?.["item"] ?? alldata?.channel?.["item"] ?? "";
       var categoriesArrray = [];
       if (categories !== "") {
         if (categories.length > 0) {
@@ -208,61 +189,6 @@ ExtractCategories.prototype = {
           } else {
             resolve();
           }
-        }
-      } else if (posts) {
-        posts.map(function (post, instanceIndex) {
-          if (post["wp:post_type"] == "post") {
-            if (post["wp:status"] == "publish") {
-              var categories = post["category"];
-              if (Array.isArray(categories)) {
-                categories.map(function (category, instanceIndex) {
-                  if (category["$"]["domain"] == "category") {
-                    if (categorisname && categorisname.length > 0) {
-                      if (
-                        categorisname.indexOf(category["$"]["nicename"]) != -1
-                      ) {
-                        categoriesArrray.push({
-                          title: category["_"],
-                          nicename: category["$"]["nicename"],
-                        });
-                      }
-                    } else {
-                      categoriesArrray.push({
-                        title: category["_"],
-                        nicename: category["$"]["nicename"],
-                      });
-                    }
-                  }
-                });
-              } else {
-                if (categories["$"]["domain"] == "category") {
-                  if (categorisname && categorisname.length > 0) {
-                    if (
-                      categorisname.indexOf(categories["$"]["nicename"]) != -1
-                    ) {
-                      categoriesArrray.push({
-                        title: categories["_"],
-                        nicename: categories["$"]["nicename"],
-                      });
-                    }
-                  } else {
-                    categoriesArrray.push({
-                      title: categories["_"],
-                      nicename: categories["$"]["nicename"],
-                    });
-                  }
-                }
-              }
-            }
-          }
-        });
-        categoriesArrray = _.uniqBy(categoriesArrray, "nicename");
-        if (categoriesArrray.length > 0) {
-          self.saveCategories(categoriesArrray);
-          resolve();
-        } else {
-          console.log(chalk.red("\nno categories found"));
-          resolve();
         }
       } else {
         console.log(chalk.red("\nno categories found"));

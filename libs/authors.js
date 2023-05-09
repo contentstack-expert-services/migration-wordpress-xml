@@ -21,8 +21,7 @@ var authorConfig = config.modules.authors,
     config.data,
     config.entryfolder,
     authorConfig.dirName
-  ),
-  masterFolderPath = path.resolve(config.data, "master", config.entryfolder);
+  );
 
 /**
  * Create folders and files if they are not created
@@ -30,11 +29,6 @@ var authorConfig = config.modules.authors,
 if (!fs.existsSync(authorsFolderPath)) {
   mkdirp.sync(authorsFolderPath);
   helper.writeFile(path.join(authorsFolderPath, authorConfig.fileName));
-  mkdirp.sync(masterFolderPath);
-  helper.writeFile(
-    path.join(masterFolderPath, authorConfig.masterfile),
-    '{"en-us":{}}'
-  );
 }
 
 function ExtractAuthors() {
@@ -91,44 +85,30 @@ ExtractAuthors.prototype = {
       var authordata = helper.readFile(
         path.join(authorsFolderPath, authorConfig.fileName)
       );
-      var authormaster = helper.readFile(
-        path.join(masterFolderPath, authorConfig.masterfile)
-      );
+
       authorDetails.map(function (data, index) {
-        var title = `authors_${data["wp:author_id"]}`;
-        if (title === undefined) {
-          var title = data["wp:author_login"];
-          var url = "/author/" + title.toLowerCase().replace(slugRegExp, "-");
-          authordata[title] = {
-            uid: data["wp:author_id"],
-            title: data["wp:author_login"],
-            url: url,
-            email: data["wp:author_email"],
-            first_name: data["wp:author_first_name"],
-            last_name: data["wp:author_last_name"],
-          };
-        } else {
-          var url = "/author/" + title.toLowerCase().replace(slugRegExp, "-");
-          authordata[title] = {
-            uid: title,
-            title: data["wp:author_login"],
-            url: url,
-            email: data["wp:author_email"],
-            first_name: data["wp:author_first_name"],
-            last_name: data["wp:author_last_name"],
-          };
-        }
-        authormaster["en-us"][title] = "";
+        var uid =
+          data["wp:author_id"] === undefined
+            ? `authors_${data["wp:author_login"]}`
+            : `authors_${data["wp:author_id"]}`;
+
+        var url = "/author/" + uid.toLowerCase().replace(slugRegExp, "-");
+        authordata[uid] = {
+          uid: uid,
+          title: data["wp:author_login"],
+          url: url,
+          email: data["wp:author_email"],
+          first_name: data["wp:author_first_name"],
+          last_name: data["wp:author_last_name"],
+        };
+
         self.customBar.increment();
       });
       helper.writeFile(
         path.join(authorsFolderPath, authorConfig.fileName),
         JSON.stringify(authordata, null, 4)
       );
-      helper.writeFile(
-        path.join(masterFolderPath, authorConfig.masterfile),
-        JSON.stringify(authormaster, null, 4)
-      );
+
       resolve();
     });
   },
