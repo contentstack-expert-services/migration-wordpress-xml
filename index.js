@@ -8,6 +8,7 @@ const Messages = require('./utils/message');
 const messages = new Messages('wordpress').msgs;
 
 const config = require('./config');
+const cliUpdate = require('./utils/cli_convert');
 global.errorLogger = require('./utils/logger')('error').error;
 global.successLogger = require('./utils/logger')('success').log;
 global.warnLogger = require('./utils/logger')('warn').log;
@@ -92,7 +93,7 @@ const migFunction = async () => {
             chalk.green('\n\nWordPress Data exporting has been started\n')
           );
 
-          // await cliUpdate();
+          await cliUpdate();
         })
         .catch(function (error) {
           console.log(error);
