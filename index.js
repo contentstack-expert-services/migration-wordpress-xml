@@ -1,90 +1,119 @@
-var path = require("path"),
-  chalk = require("chalk"),
-  fs = require("fs"),
-  inquirer = require("inquirer"),
-  sequence = require("when/sequence"),
-  xml2js = require("xml2js"),
-  mkdirp = require("mkdirp");
+var path = require('path'),
+  chalk = require('chalk'),
+  fs = require('fs'),
+  inquirer = require('inquirer'),
+  xml2js = require('xml2js'),
+  mkdirp = require('mkdirp');
+const Messages = require('./utils/message');
+const messages = new Messages('wordpress').msgs;
 
-_ = require("lodash");
-const Messages = require("./utils/message");
-const messages = new Messages("wordpress").msgs;
+const config = require('./config');
+global.errorLogger = require('./utils/logger')('error').error;
+global.successLogger = require('./utils/logger')('success').log;
+global.warnLogger = require('./utils/logger')('warn').log;
 
-config = require("./config");
-global.errorLogger = require("./utils/logger")("error").error;
-global.successLogger = require("./utils/logger")("success").log;
-global.warnLogger = require("./utils/logger")("warn").log;
-
+// single xml file code
 var modulesList = [
-  "reference",
-  "assets",
-  "authors",
-  "categories",
-  "terms",
-  "tags",
-  "posts",
-];
-//to create entries
-var contentList = ["authors", "categories", "posts", "terms", "tags"]; // to create content type for the entries
-var _export = [];
+  'assets',
+  'folders',
+  'reference',
+  'chunks',
+  'authors',
+  'content_types',
+  'terms',
+  'tags',
+  'categories',
+  'posts',
+  'global_fields',
+]; //to create entries
 
-const migFunction = () => {
-  try {
-    global.filePath = undefined;
-    // Module List for Entries
-    for (var i = 0, total = modulesList.length; i < total; i++) {
-      var ModuleExport = require("./libs/" + modulesList[i] + ".js");
-      var moduleExport = new ModuleExport();
-      _export.push(
-        (function (moduleExport) {
-          return function () {
-            return moduleExport.start();
-          };
-        })(moduleExport)
-      );
-    }
+var promises = [];
 
-    // Content List
-    //create schema for the entries we  have created
-    for (var i = 0, total = contentList.length; i < total; i++) {
-      var ContentExport = require("./content_types/" + contentList[i] + ".js");
-      var contentExport = new ContentExport();
-      _export.push(
-        (function (contentExport) {
-          return function () {
-            return contentExport.start();
-          };
-        })(contentExport)
-      );
-    }
-  } catch (error) {
-    console.log(error.message);
-  }
-
-  var taskResults = sequence(_export);
-
-  taskResults
-    .then(async function (results) {
-      console.log(chalk.green("\nWordPress Data exporting has been started"));
+// for single xml file
+const migFunction = async () => {
+  inquirer
+    .prompt({
+      type: 'input',
+      name: 'csPrefix',
+      message: 'Add a custom content-type name if you want (optional).',
+      validate: (csPrefix) => {
+        let format = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+/;
+        if (format.test(csPrefix)) {
+          console.log(
+            chalk.red(`\nSpecial characters are not allowed except "_"`)
+          );
+          return false;
+        }
+        this.name = csPrefix;
+        return true;
+      },
     })
-    .catch(function (error) {
-      errorLogger(error);
+    .then(async (answer) => {
+      try {
+        if (!fs.existsSync(path.join(process.cwd(), config.data))) {
+          mkdirp.sync(path.join(process.cwd(), config.data));
+        }
+        if (!fs.existsSync(path.join(config.data, config.json_filename))) {
+          var xml_data = helper.readXMLFile(config.xml_filename);
+          parseString(
+            xml_data,
+            { explicitArray: false },
+            function (err, result) {
+              if (err) {
+                console.log(err);
+                errorLogger('failed to parse xml: ', err);
+              } else {
+                helper.writeFile(
+                  path.join(config.data, config.json_filename),
+                  JSON.stringify(result, null, 4)
+                );
+              }
+            }
+          );
+        }
+        global.filePath = undefined;
+        global.wordPress_prefix = answer.csPrefix.replace(
+          /[^a-zA-Z0-9]+/g,
+          '_'
+        );
+
+        for (let i = 0; i < modulesList.length; i++) {
+          const ModuleExport = require(`./libs/${modulesList[i]}.js`);
+          const moduleExport = new ModuleExport();
+          await moduleExport.start();
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      Promise.all(promises)
+        .then(async function (results) {
+          console.log(
+            chalk.green('\n\nWordPress Data exporting has been started\n')
+          );
+
+          // await cliUpdate();
+        })
+        .catch(function (error) {
+          console.log(error);
+          errorLogger(error);
+        });
     });
 };
 
 // to check if file exist or not
 const fileCheck = (csFilePath) => {
-  const allowedExtension = ".xml";
+  const allowedExtension = '.xml';
   const extension = path.extname(csFilePath);
   if (allowedExtension === extension) {
     if (fs.existsSync(csFilePath)) {
-      mkdirp.sync(config.data);
-      const xmlFilePath = config.xml_filename;
+      mkdirp.sync(path.join(process.cwd(), config.data));
+      const xmlFilePath = global.xml_filename;
       const jsonFilePath = path.join(config.data, config.json_filename);
-      const xml = fs.readFileSync(xmlFilePath, "utf8");
+      const xml = fs.readFileSync(xmlFilePath, 'utf8');
       const parser = new xml2js.Parser({
-        attrkey: "attributes",
-        charkey: "text",
+        attrkey: 'attributes',
+        charkey: 'text',
         explicitArray: false,
       });
       parser.parseString(xml, (err, result) => {
@@ -92,7 +121,7 @@ const fileCheck = (csFilePath) => {
           console.error(`Error parsing XML: ${err.message}`);
         } else {
           const json = JSON.stringify(result, null, 2);
-          fs.writeFile(jsonFilePath, json, "utf8", (err) => {
+          fs.writeFile(jsonFilePath, json, 'utf8', (err) => {
             if (err) {
               console.error(`Error writing JSON: ${err.message}`);
             } else {
@@ -111,21 +140,21 @@ const fileCheck = (csFilePath) => {
       XMLMigration();
     }
   } else {
-    console.log(chalk.red("use only .xml extension file"));
+    console.log(chalk.red('use only .xml extension file'));
   }
 };
 
 const XMLMigration = async () => {
-  console.log(chalk.hex("#6C5CE7")(messages.promptXMLDescription));
+  console.log(chalk.hex('#6C5CE7')(messages.promptXMLDescription));
 
   const question = [
     {
-      type: "input",
-      name: "csFilePath",
+      type: 'input',
+      name: 'csFilePath',
       message: messages.promptFilePath,
       validate: (csFilePath) => {
-        if (!csFilePath || csFilePath.trim() === "") {
-          console.log(chalk.red("Please insert filepath!"));
+        if (!csFilePath || csFilePath.trim() === '') {
+          console.log(chalk.red('Please insert filepath!'));
           return false;
         }
         this.name = csFilePath;
@@ -136,13 +165,13 @@ const XMLMigration = async () => {
 
   inquirer.prompt(question).then(async (answer) => {
     try {
-      const allowedExtension = ".xml";
+      const allowedExtension = '.xml';
       if (path.extname(answer.csFilePath)) {
         const extension = path.extname(answer.csFilePath);
         if (answer.csFilePath) {
           if (extension === allowedExtension) {
-            global.config.xml_filename = answer.csFilePath;
-            fileCheck(config.xml_filename);
+            global.xml_filename = answer.csFilePath;
+            fileCheck(global.xml_filename);
           }
         }
       } else {

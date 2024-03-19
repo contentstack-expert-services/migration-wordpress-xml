@@ -4,33 +4,12 @@
   "xml_filename": "",
   "json_file": "",
   "json_filename": "data.json",
-  "table_prefix": "wp_",
   "entryfolder": "entries",
   "modules": {
-    "locales": {
-      "dirName": "locales",
-      "fileName": "locales.json"
-    },
-    "webhooks": {
-      "dirName": "webhooks",
-      "fileName": "webhooks.json"
-    },
-    "environments": {
-      "dirName": "environments",
-      "fileName": "environments.json"
-    },
     "contentTypes": {
       "dirName": "content_types",
       "fileName": "contenttype.json",
-      "masterfile": "contenttypes.json",
-      "validKeys": [
-        "title",
-        "uid",
-        "schema",
-        "options",
-        "singleton",
-        "description"
-      ]
+      "masterfile": "contenttypes.json"
     },
     "authors": {
       "dirName": "authors",
@@ -54,8 +33,7 @@
     },
     "references": {
       "dirName": "reference",
-      "fileName": "en-us.json",
-      "masterfile": "reference.json"
+      "fileName": "reference.json"
     },
     "asset": {
       "dirName": "assets",
@@ -67,139 +45,6 @@
       "dirName": "posts",
       "fileName": "en-us.json",
       "masterfile": "posts.json"
-    },
-    "entries": {
-      "dirName": "entries",
-      "fileName": "en-us.json",
-      "masterfile": "entries.json"
-    },
-    "vocabulary": {
-      "dirName": "vocabulary",
-      "fileName": "en-us.json",
-      "masterfile": "vocabulary.json"
-    },
-    "taxonomy": {
-      "dirName": "taxonomy",
-      "fileName": "en-us.json",
-      "masterfile": "taxonomy.json"
-    },
-    "article": {
-      "dirName": "article",
-      "fileName": "en-us.json",
-      "masterfile": "article.json"
-    }
-  },
-  "contenttypes": "content_types",
-  "contentmodules": {
-    "authors": {
-      "fileName": "authors.json"
-    },
-    "categories": {
-      "fileName": "categories.json"
-    },
-    "posts": {
-      "fileName": "posts.json"
-    },
-    "terms": {
-      "fileName": "terms.json"
-    },
-    "tag": {
-      "fileName": "tag.json"
-    },
-    "schema": {
-      "fileName": "schema.json"
-    },
-    "sharepoint": {
-      "dirName": "sharepoint",
-      "english": "en-us.json",
-      "arabic": "ar-sa.json",
-      "masterfile": "sharepoint.json"
-    }
-  },
-  "base_locale": { "name": "English US", "code": "en-us" },
-  "mysql": {
-    "host": "",
-    "user": "",
-    "password": "",
-    "database": "",
-    "port": ""
-  },
-  "base_url": "http://localhost/",
-  "public_path": "/sites/default/files/",
-  "private_path": "",
-  "mysql-query": {
-    "locale": "SELECT languages.language,languages.name FROM `languages`",
-    "taxonomy_term_data": "SELECT a.name, a.description__value,b.tid,b.vid FROM taxonomy_term_field_data a, taxonomy_term_data b WHERE a.vid=b.vid",
-    "taxonomyCount": "SELECT count(b.tid) as taxonomycount FROM taxonomy_term_field_data a, taxonomy_term_data b WHERE a.tid = b.tid AND a.vid=b.vid",
-    "ct_mapped": "SELECT *, CONVERT(data USING utf8) as data FROM config WHERE name LIKE '%field.field.node%'",
-    "fileID": "SELECT * FROM `file_usage`",
-    "assetCount": "SELECT count(a.fid) as assetcount FROM file_managed a",
-    "assets": "SELECT a.fid, a.filename, a.uri,b.count FROM file_managed a, file_usage b",
-    "assetsFID": "SELECT a.fid, a.filename, a.uri, b.id,b.count FROM file_managed a, file_usage b WHERE a.fid IN",
-    "authorCount": "SELECT count(users_field_data.uid) as usercount FROM users_field_data LEFT JOIN file_managed ON file_managed.fid = users_field_data.uid",
-    "authors": "SELECT name,mail,timezone FROM users_field_data LEFT JOIN file_managed ON file_managed.fid = users_field_data.uid",
-    "vocabulary": "SELECT taxonomy_term_field_data.tid,taxonomy_term_field_data.vid, taxonomy_term_field_data.name AS title, taxonomy_term_field_data.description__value FROM taxonomy_term_field_data",
-    "vocabularyCount": "SELECT count(taxonomy_term_field_data.vid) as vocabularycount FROM taxonomy_term_field_data"
-  },
-  "contentful": {
-    "contentful": "contentfulSchema",
-    "editorInterface": "editorInterface",
-    "displayEntries": {
-      "dirname": "displayEntries",
-      "filename": "displayEntries.json"
-    },
-    "extensions": {
-      "dirname": "extensions",
-      "filename": "extensions.json"
-    },
-    "reference": {
-      "dirname": "references",
-      "filename": "reference.json"
-    },
-    "rteReference": {
-      "dirname": "rteReferences",
-      "filename": "rteReferences.json"
-    },
-    "language": {
-      "dirname": "language",
-      "filename": "language.json"
-    },
-    "defaultLocale": {
-      "dirname": "defaultLocale",
-      "filename": "defaultLocale.json"
-    },
-    "contentfulLogs": {
-      "dirname": "contentfulLogs",
-      "filename": "contentfullog.json"
-    }
-  },
-  "fileName": "en-us.json",
-  "sharepoint": {
-    "contenttype": {
-      "dirName": "content_types",
-      "fileName": "news.json"
-    },
-    "entries": {
-      "dirName": "entries",
-      "folderName": "news",
-      "english": "en-us.json",
-      "arabic": "ar-sa.json"
-    },
-    "locales": {
-      "dirName": "locales",
-      "fileName": "locales.json"
-    },
-    "asset": {
-      "dirName": "assets",
-      "arabic": "arabic.json",
-      "english": "english.json",
-      "fileName": "assets.json",
-      "featuredfileName": "_featured.json",
-      "masterfile": "url_master.json"
-    },
-    "data": {
-      "english": "english.json",
-      "arabic": "arabic.json"
     }
   }
 }
