@@ -55,7 +55,10 @@ ExtractAuthors.prototype = {
         var url = '/author/' + uid.toLowerCase().replace(slugRegExp, '-');
         authordata[uid] = {
           uid: uid,
-          title: data['wp:author_login'],
+          title:
+            data['wp:author_login'] ??
+            `Authors - ${data['wp:author_login']}` ??
+            `Authors - ${data['wp:author_id']}`,
           url: url,
           email: data['wp:author_email'],
           first_name: data['wp:author_first_name'],

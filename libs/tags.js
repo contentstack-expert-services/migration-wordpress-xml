@@ -52,7 +52,7 @@ ExtractTags.prototype = {
         var url = '/tags/' + uid;
         tagdata[uid] = {
           uid: uid,
-          title: title,
+          title: title ?? `Tags - ${data['id']}`,
           url: url,
           slug: slug,
           description: description,

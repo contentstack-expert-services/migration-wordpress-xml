@@ -104,7 +104,7 @@ ExtractCategories.prototype = {
           var url = '/category/' + uid;
           categorydata[`category_${uid}`] = {
             uid: `category_${uid}`,
-            title: title,
+            title: title ?? `Category - ${uid}`,
             url: url,
             nicename: nicename,
             description: description,

@@ -54,7 +54,7 @@ ExtractTerms.prototype = {
 
         termsdata[uid] = {
           uid: uid,
-          title: title,
+          title: title ?? `Terms - ${data['id']}`,
           url: url,
           taxonomy: taxonomy,
           slug: slug,

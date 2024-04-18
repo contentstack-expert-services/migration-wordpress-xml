@@ -273,7 +273,7 @@ async function processChunkData(chunkData, filename, isLastChunk) {
               url = url.split(blogname);
               url = url[1];
               postdata[`posts_${data['wp:post_id']}`] = {
-                title: data['title'],
+                title: data['title'] ?? `Posts - ${data['wp:post_id']}`,
                 uid: `posts_${data['wp:post_id']}`,
                 url: url,
                 date: date.toISOString(),
