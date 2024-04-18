@@ -49,7 +49,7 @@ const makeChunks = async (assetData) => {
       currentChunkId = uuid.v4();
       currentChunkSize = 0;
       let tempObj = {};
-      tempObj[assetData[curAssetKey].uid] = assetData[curAssetKey];
+      // tempObj[assetData[curAssetKey].uid] = assetData[curAssetKey];
       chunks[currentChunkId] = tempObj;
     }
   }
