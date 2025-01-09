@@ -23,7 +23,9 @@ ExtractFolders.prototype = {
             uid: 'wordpressasset',
             content_type: 'application/vnd.contenstack.folder',
             tags: [],
-            name: global.wordPress_prefix,
+            name: global.wordPress_prefix
+              ? global.wordPress_prefix
+              : 'WordPress Migration Assets',
             is_dir: true,
             parent_uid: null,
             _version: 1,
@@ -44,18 +46,14 @@ ExtractFolders.prototype = {
     successLogger(`Creating assets folder...`);
     var self = this;
     return when.promise(function (resolve, reject) {
-      if (global.wordPress_prefix) {
-        self
-          .saveFolder()
-          .then(function () {
-            resolve();
-          })
-          .catch(function () {
-            reject();
-          });
-      } else {
-        resolve();
-      }
+      self
+        .saveFolder()
+        .then(function () {
+          resolve();
+        })
+        .catch(function () {
+          reject();
+        });
     });
   },
 };

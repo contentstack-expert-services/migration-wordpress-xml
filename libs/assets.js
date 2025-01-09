@@ -38,152 +38,176 @@ if (!fs.existsSync(assetFolderPath)) {
 //Reading a File
 var assetData = {};
 
+function toCheckUrl(url, baseSiteUrl) {
+  // Check if the URL starts with valid prefixes
+  const validPattern = /^(https?:\/\/|www\.)/;
+  if (validPattern.test(url)) {
+    return url; // Return the URL as is if it starts with a valid prefix
+  }
+
+  // Remove leading slash from the URL if it exists
+  const sanitizedUrl = url.replace(/^\/+/, '');
+
+  // Add the prefix and return the updated URL
+  return `${baseSiteUrl}${sanitizedUrl}`;
+}
 function ExtractAssets() {}
 
 ExtractAssets.prototype = {
-  saveAsset: function (assets, retryCount) {
+  saveAsset: function (assets, baseSiteUrl, retryCount) {
     var self = this;
     return when.promise(async function (resolve, reject) {
-      var url = assets['wp:attachment_url'];
-      var name = url.split('/');
-      var len = name.length;
-      name = name[len - 1];
-      url = encodeURI(url);
-      var description =
-        assets['description'] ||
-        assets['content:encoded'] ||
-        assets['excerpt:encoded'] ||
-        '';
-      if (description.length > 255) {
-        description = description.slice(0, 255);
-      }
-      const parent_uid = global.wordPress_prefix ? 'wordpressasset' : null;
-      if (
-        fs.existsSync(
-          path.resolve(assetFolderPath, assets['wp:post_id'].toString(), name)
-        )
-      ) {
-        successLogger(
-          'asset already present ' + "'" + assets['wp:post_id'] + "'"
-        );
-        resolve(assets['wp:post_id']);
-      } else {
-        try {
-          const response = await axios.get(url, {
-            responseType: 'arraybuffer',
-          });
-          mkdirp.sync(
-            path.resolve(
-              assetFolderPath,
-              `assets_${assets['wp:post_id'].toString()}`
-            )
-          );
-          fs.writeFileSync(
-            path.join(
-              assetFolderPath,
-              `assets_${assets['wp:post_id'].toString()}`,
-              name
-            ),
-            response.data
-          );
-
-          var stats = fs.lstatSync(
-            path.join(
-              assetFolderPath,
-              `assets_${assets['wp:post_id'].toString()}`,
-              name
-            )
-          );
-          assetData[`assets_${assets['wp:post_id']}`] = {
-            uid: `assets_${assets['wp:post_id']}`,
-            urlPath: `/assets/assets_${assets['wp:post_id']}`,
-            status: true,
-            file_size: `${stats.size}`,
-            tag: [],
-            filename: name,
-            url: url,
-            is_dir: false,
-            parent_uid: parent_uid,
-            _version: 1,
-            title: assets['title'] || name.substr(0, name.lastIndexOf('.')),
-            publish_details: [],
-            description: description,
-          };
-          if (failedJSON[assets['wp:post_id']]) {
-            delete failedJSON[assets['wp:post_id']];
-          }
-
-          helper.writeFile(
-            path.join(assetFolderPath, assetConfig.fileName),
-            JSON.stringify(assetData, null, 4)
-          );
-
-          console.log(
-            'An asset with id',
-            chalk.green(`assets_${assets['wp:post_id']}`),
-            'and name',
-            chalk.green(`${name}`),
-            'got downloaded successfully.'
+      try {
+        let url = toCheckUrl(assets['wp:attachment_url'], baseSiteUrl);
+        let name = url.split('/');
+        let len = name.length;
+        name = name[len - 1];
+        url = encodeURI(url);
+        let description =
+          assets['description'] ||
+          assets['content:encoded'] ||
+          assets['excerpt:encoded'] ||
+          '';
+        if (description.length > 255) {
+          description = description.slice(0, 255);
+        }
+        const parent_uid = global.wordPress_prefix ? 'wordpressasset' : null;
+        if (
+          fs.existsSync(
+            path.resolve(assetFolderPath, assets['wp:post_id'].toString(), name)
+          )
+        ) {
+          successLogger(
+            'asset already present ' + "'" + assets['wp:post_id'] + "'"
           );
           resolve(assets['wp:post_id']);
-        } catch (err) {
-          if (err) {
-            failedJSON[assets['wp:post_id']] = err;
-            if (retryCount == 1) {
-              failedJSON[assets['wp:post_id']] = {
-                failedUid: assets['wp:post_id'],
-                name: assets['title'] || name.substr(0, name.lastIndexOf('.')),
-                url: url,
-                reason_for_error: err?.message,
-              };
-              helper.writeFile(
-                path.join(assetMasterFolderPath, 'wp_failed.json'),
-                JSON.stringify(failedJSON, null, 4)
+        } else {
+          try {
+            const response = await axios.get(url, {
+              responseType: 'arraybuffer',
+            });
+            mkdirp.sync(
+              path.resolve(
+                assetFolderPath,
+                `assets_${assets['wp:post_id'].toString()}`
+              )
+            );
+            fs.writeFileSync(
+              path.join(
+                assetFolderPath,
+                `assets_${assets['wp:post_id'].toString()}`,
+                name
               ),
-                resolve(assets['wp:post_id']);
-            } else {
-              self.saveAsset(assets, 1).then(function (results) {
-                resolve();
-              });
+              response.data
+            );
+
+            var stats = fs.lstatSync(
+              path.join(
+                assetFolderPath,
+                `assets_${assets['wp:post_id'].toString()}`,
+                name
+              )
+            );
+            assetData[`assets_${assets['wp:post_id']}`] = {
+              uid: `assets_${assets['wp:post_id']}`,
+              urlPath: `/assets/assets_${assets['wp:post_id']}`,
+              status: true,
+              file_size: `${stats.size}`,
+              tag: [],
+              filename: name,
+              url: url,
+              is_dir: false,
+              parent_uid: parent_uid,
+              _version: 1,
+              title: assets['title'] || name.substr(0, name.lastIndexOf('.')),
+              publish_details: [],
+              description: description,
+            };
+            if (failedJSON[assets['wp:post_id']]) {
+              delete failedJSON[assets['wp:post_id']];
+            }
+
+            helper.writeFile(
+              path.join(assetFolderPath, assetConfig.fileName),
+              JSON.stringify(assetData, null, 4)
+            );
+
+            console.log(
+              'An asset with id',
+              chalk.green(`assets_${assets['wp:post_id']}`),
+              'and name',
+              chalk.green(`${name}`),
+              'got downloaded successfully.'
+            );
+            resolve(assets['wp:post_id']);
+          } catch (err) {
+            if (err) {
+              failedJSON[assets['wp:post_id']] = err;
+              if (retryCount == 1) {
+                failedJSON[assets['wp:post_id']] = {
+                  failedUid: assets['wp:post_id'],
+                  name:
+                    assets['title'] || name.substr(0, name.lastIndexOf('.')),
+                  url: url,
+                  reason_for_error: err?.message,
+                };
+                helper.writeFile(
+                  path.join(assetMasterFolderPath, 'wp_failed.json'),
+                  JSON.stringify(failedJSON, null, 4)
+                ),
+                  resolve(assets['wp:post_id']);
+              } else {
+                self.saveAsset(assets, 1).then(function (results) {
+                  resolve();
+                });
+              }
             }
           }
         }
+      } catch (error) {
+        console.log(error);
+        reject();
       }
     });
   },
-  getAsset: function (attachments) {
+  getAsset: function (attachments, baseSiteUrl) {
     var self = this;
     return when.promise(function (resolve, reject) {
-      var _getAsset = [];
+      try {
+        var _getAsset = [];
 
-      for (var i = 0, total = attachments.length; i < total; i++) {
-        _getAsset.push(
-          (function (data) {
-            return function () {
-              return self.saveAsset(data, 0);
-            };
-          })(attachments[i])
-        );
+        for (var i = 0, total = attachments.length; i < total; i++) {
+          _getAsset.push(
+            (function (data) {
+              return function () {
+                return self.saveAsset(data, baseSiteUrl, 0);
+              };
+            })(attachments[i])
+          );
+        }
+        var guardTask = guard.bind(null, guard.n(5));
+        _getAsset = _getAsset.map(guardTask);
+        var taskResults = parallel(_getAsset);
+        taskResults
+          .then(function (results) {
+            helper.writeFile(
+              path.join(assetFolderPath, assetConfig.fileName),
+              JSON.stringify(assetData, null, 4)
+            );
+            helper.writeFile(
+              path.join(assetMasterFolderPath, 'wp_failed.json'),
+              JSON.stringify(failedJSON, null, 4)
+            );
+            resolve(results);
+          })
+          .catch(function (e) {
+            errorLogger('failed to download assets: ', e);
+            resolve();
+          });
+      } catch (error) {
+        console.log(error);
+        reject();
       }
-      var guardTask = guard.bind(null, guard.n(5));
-      _getAsset = _getAsset.map(guardTask);
-      var taskResults = parallel(_getAsset);
-      taskResults
-        .then(function (results) {
-          helper.writeFile(
-            path.join(assetFolderPath, assetConfig.fileName),
-            JSON.stringify(assetData, null, 4)
-          );
-          helper.writeFile(
-            path.join(assetMasterFolderPath, 'wp_failed.json'),
-            JSON.stringify(failedJSON, null, 4)
-          );
-          resolve(results);
-        })
-        .catch(function (e) {
-          errorLogger('failed to download assets: ', e);
-          resolve();
-        });
     });
   },
   getAllAssets: function () {
@@ -192,7 +216,10 @@ ExtractAssets.prototype = {
       var alldata = helper.readFile(
         path.join(config.data, config.json_filename)
       );
-      var assets = alldata?.rss?.channel?.item ?? alldata?.channel?.item;
+      let baseSiteUrl =
+        alldata?.rss?.channel?.['wp:base_site_url'] ??
+        alldata?.channel?.['wp:base_site_url'];
+      let assets = alldata?.rss?.channel?.item ?? alldata?.channel?.item;
       if (assets) {
         if (assets.length > 0) {
           if (!filePath) {
@@ -200,7 +227,7 @@ ExtractAssets.prototype = {
               'wp:post_type': 'attachment',
             }); //for media(assets)
             self
-              .getAsset(attachments, attachments.length)
+              .getAsset(attachments, baseSiteUrl)
               .then(function () {
                 resolve();
               })
