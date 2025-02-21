@@ -93,7 +93,7 @@ ExtractChunks.prototype = {
           path.join(config.data, config.json_filename)
         );
         const posts =
-          alldata?.rss?.channel['item'] ?? alldata?.channel['item'] ?? '';
+          alldata?.rss?.channel?.['item'] ?? alldata?.channel?.['item'] ?? '';
 
         if (posts) {
           if (posts.length > 0) {

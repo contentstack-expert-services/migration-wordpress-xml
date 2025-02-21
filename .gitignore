@@ -4,5 +4,8 @@ logs
 ./package-lock.json
 1800.xml
 sitetitle.xml
+*.xml
 package-lock*
 _backup_*
+.DS_Store
+package-lock.json

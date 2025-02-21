@@ -40,83 +40,95 @@ ExtractTags.prototype = {
   saveTags: function (tagDetails) {
     var self = this;
     return when.promise(function (resolve, reject) {
-      var tagdata = helper.readFile(
-        path.join(tagsFolderPath, tagsConfig.fileName)
-      );
-
-      tagDetails.map(function (data, index) {
-        var title = data['tag_name'];
-        var uid = `tags_${data['id']}`;
-        var slug = data['tag_slug'];
-        var description = data['description'] || '';
-        var url = '/tags/' + uid;
-        tagdata[uid] = {
-          uid: uid,
-          title: title ?? `Tags - ${data['id']}`,
-          url: url,
-          slug: slug,
-          description: description,
-        };
-        fs.writeFileSync(
-          path.join(tagsFolderPath, tagsConfig.fileName),
-          JSON.stringify(tagdata, null, 4)
+      try {
+        var tagdata = helper.readFile(
+          path.join(tagsFolderPath, tagsConfig.fileName)
         );
-      });
 
-      console.log(
-        chalk.green(`${tagDetails.length}`),
-        ' Tags exported successfully'
-      );
-      resolve();
+        tagDetails.map(function (data, index) {
+          var title = data['tag_name'];
+          var uid = `tags_${data['id']}`;
+          var slug = data['tag_slug'];
+          var description = data['description'] || '';
+          var url = '/tags/' + uid;
+          tagdata[uid] = {
+            uid: uid,
+            title: title ?? `Tags - ${data['id']}`,
+            url: url,
+            slug: slug,
+            description: description,
+          };
+          fs.writeFileSync(
+            path.join(tagsFolderPath, tagsConfig.fileName),
+            JSON.stringify(tagdata, null, 4)
+          );
+        });
+
+        console.log(
+          chalk.green(`${tagDetails.length}`),
+          ' Tags exported successfully'
+        );
+        resolve();
+      } catch (error) {
+        console.error('Error in saveTags:', error);
+        reject(error);
+      }
     });
   },
   getAllTags: function () {
     var self = this;
     return when.promise(function (resolve, reject) {
-      var tagsname;
-      if (filePath) {
-        //if user provide custom name of category
-        if (fs.existsSync(filePath)) {
-          tagsname = fs.readFileSync(filePath, 'utf-8');
+      try {
+        var tagsname;
+        if (filePath) {
+          //if user provide custom name of category
+          if (fs.existsSync(filePath)) {
+            tagsname = fs.readFileSync(filePath, 'utf-8');
+          }
         }
-      }
-      if (tagsname) {
-        tagsname = tagsname.split(',');
-      }
-      var alldata = helper.readFile(
-        path.join(config.data, config.json_filename)
-      );
-      var tags =
-        alldata?.rss?.channel?.['wp:tag'] ?? alldata?.channel?.['wp:tag'] ?? '';
-      var tagsArrray = [];
-      if (tags !== '') {
-        if (tags.length > 0) {
-          tags.forEach(function (taginfo) {
-            tagsArrray.push({
-              id: taginfo['wp:term_id'],
-              tag_name: taginfo['wp:tag_name'],
-              tag_slug: taginfo['wp:tag_slug'],
-              description: taginfo['wp:tag_description'],
+        if (tagsname) {
+          tagsname = tagsname.split(',');
+        }
+        var alldata = helper.readFile(
+          path.join(config.data, config.json_filename)
+        );
+        var tags =
+          alldata?.rss?.channel?.['wp:tag'] ??
+          alldata?.channel?.['wp:tag'] ??
+          '';
+        var tagsArrray = [];
+        if (tags !== '') {
+          if (tags.length > 0) {
+            tags.forEach(function (taginfo) {
+              tagsArrray.push({
+                id: taginfo['wp:term_id'],
+                tag_name: taginfo['wp:tag_name'],
+                tag_slug: taginfo['wp:tag_slug'],
+                description: taginfo['wp:tag_description'],
+              });
             });
-          });
-        } else {
-          tagsArrray.push({
-            id: tags['wp:term_id'],
-            tag_name: tags['wp:tag_name'],
-            tag_slug: tags['wp:tag_slug'],
-            description: tags['wp:tag_description'],
-          });
-        }
-        if (tagsArrray.length > 0) {
-          self.saveTags(tagsArrray);
-          resolve();
+          } else {
+            tagsArrray.push({
+              id: tags['wp:term_id'],
+              tag_name: tags['wp:tag_name'],
+              tag_slug: tags['wp:tag_slug'],
+              description: tags['wp:tag_description'],
+            });
+          }
+          if (tagsArrray.length > 0) {
+            self.saveTags(tagsArrray);
+            resolve();
+          } else {
+            console.log(chalk.red('\nno tags found'));
+            resolve();
+          }
         } else {
           console.log(chalk.red('\nno tags found'));
           resolve();
         }
-      } else {
-        console.log(chalk.red('\nno tags found'));
-        resolve();
+      } catch (error) {
+        console.error('Error in saveTags:', error);
+        reject(error);
       }
     });
   },
