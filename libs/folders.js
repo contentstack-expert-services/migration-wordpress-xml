@@ -3,7 +3,8 @@
  * External module Dependencies.
  */
 var path = require('path'),
-  when = require('when');
+  when = require('when'),
+  chalk = require('chalk');
 /**
  * Internal module Dependencies .
  */
@@ -35,6 +36,7 @@ ExtractFolders.prototype = {
           path.join(process.cwd(), config.data, 'assets', 'folders.json'),
           JSON.stringify(folderJSON, null, 4)
         );
+        console.log(chalk.green(`Assets Folder created successfully`));
         resolve();
       } catch (error) {
         console.log(error);

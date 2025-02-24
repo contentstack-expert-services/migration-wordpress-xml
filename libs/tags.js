@@ -31,7 +31,9 @@ var tagsFolderPath = path.resolve(
  */
 if (!fs.existsSync(tagsFolderPath)) {
   mkdirp.sync(tagsFolderPath);
-  helper.writeFile(path.join(tagsFolderPath, tagsConfig.fileName));
+  helper.writeFile(path.join(tagsFolderPath, `${global.masterLocale}.json`));
+} else {
+  helper.writeFile(path.join(tagsFolderPath, `${global.masterLocale}.json`));
 }
 
 function ExtractTags() {}
@@ -42,7 +44,7 @@ ExtractTags.prototype = {
     return when.promise(function (resolve, reject) {
       try {
         var tagdata = helper.readFile(
-          path.join(tagsFolderPath, tagsConfig.fileName)
+          path.join(tagsFolderPath, `${global.masterLocale}.json`)
         );
 
         tagDetails.map(function (data, index) {
@@ -57,9 +59,10 @@ ExtractTags.prototype = {
             url: url,
             slug: slug,
             description: description,
+            publish_details: [],
           };
           fs.writeFileSync(
-            path.join(tagsFolderPath, tagsConfig.fileName),
+            path.join(tagsFolderPath, `${global.masterLocale}.json`),
             JSON.stringify(tagdata, null, 4)
           );
         });

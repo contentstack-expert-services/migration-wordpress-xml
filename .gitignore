@@ -9,3 +9,4 @@ package-lock*
 _backup_*
 .DS_Store
 package-lock.json
+.qodo

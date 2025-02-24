@@ -65,7 +65,7 @@ var postFolderPath = path.resolve(
   config.data,
   config.entryfolder,
   postFolderName,
-  'en-us'
+  global.masterLocale
 );
 
 var authorFolderName = global.wordPress_prefix
@@ -82,7 +82,7 @@ const authorId = helper.readFile(
     config.data,
     'entries',
     authorFolderName,
-    'en-us.json'
+    `${global.masterLocale}.json`
   )
 );
 
@@ -100,7 +100,7 @@ const chunksDir = path.resolve(config.data, 'chunks');
 
 if (!fs.existsSync(postFolderPath)) {
   mkdirp.sync(postFolderPath);
-  helper.writeFile(path.join(postFolderPath, postConfig.fileName));
+  helper.writeFile(path.join(postFolderPath, global.masterLocale));
 }
 
 // var self = this;
@@ -285,6 +285,7 @@ async function processChunkData(chunkData, filename, isLastChunk) {
                 category: postCategories,
                 terms: postTerms,
                 tag: postTags,
+                publish_details: [],
               };
               featuredImageMapping(
                 `posts_${data['wp:post_id']}`,

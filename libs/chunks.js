@@ -24,7 +24,7 @@ var postFolderPath = path.resolve(
   config.data,
   config.entryfolder,
   postFolderName,
-  'en-us'
+  global.masterLocale
 );
 
 const chunksDir = path.resolve(config.data, 'chunks');
@@ -71,7 +71,7 @@ async function splitJsonIntoChunks(arrayData) {
         config.data,
         'entries',
         postFolderName,
-        'en-us',
+        global.masterLocale,
         'index.json'
       ),
       JSON.stringify(postIndex, null, 4),

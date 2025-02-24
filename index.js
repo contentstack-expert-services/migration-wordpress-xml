@@ -3,7 +3,8 @@ var path = require('path'),
   fs = require('fs'),
   inquirer = require('inquirer'),
   xml2js = require('xml2js'),
-  mkdirp = require('mkdirp');
+  mkdirp = require('mkdirp'),
+  axios = require('axios');
 const Messages = require('./utils/message');
 const messages = new Messages('wordpress').msgs;
 
@@ -17,6 +18,7 @@ global.warnLogger = require('./utils/logger')('warn').log;
 var modulesList = [
   'assets',
   'folders',
+  'locale',
   'reference',
   'chunks',
   'authors',
@@ -25,7 +27,6 @@ var modulesList = [
   'tags',
   'categories',
   'posts',
-  'global_fields',
 ]; //to create entries
 
 var promises = [];
@@ -36,7 +37,7 @@ const migFunction = async () => {
     .prompt({
       type: 'input',
       name: 'csPrefix',
-      message: 'Add a custom content-type name if you want (optional).',
+      message: messages.promptPrefix,
       validate: (csPrefix) => {
         let format = /[!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?]+/;
         if (format.test(csPrefix)) {
@@ -102,6 +103,47 @@ const migFunction = async () => {
     });
 };
 
+const setMasterLocale = async () => {
+  const localErrorMessage = messages.promptLocaleError;
+  inquirer
+    .prompt({
+      type: 'input',
+      name: 'masterLocale',
+      message: messages.promptMasterLocale,
+      validate: (masterLocale) => {
+        if (!masterLocale || masterLocale.trim() === '') {
+          console.log(chalk.red(localErrorMessage));
+          return false;
+        }
+        this.name = masterLocale;
+        return true;
+      },
+    })
+    .then(async (answer) => {
+      try {
+        const response = await axios.get(
+          'https://app.contentstack.com/api/v3/locales?include_all=true'
+        );
+
+        if (
+          response?.data?.locales &&
+          Object.hasOwn(
+            response?.data?.locales,
+            answer?.masterLocale.toLowerCase()
+          )
+        ) {
+          global.masterLocale = answer.masterLocale.toLowerCase();
+          migFunction();
+        } else {
+          console.log(chalk.red(localErrorMessage));
+          setMasterLocale();
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    });
+};
+
 // to check if file exist or not
 const fileCheck = (csFilePath) => {
   const allowedExtension = '.xml';
@@ -127,7 +169,7 @@ const fileCheck = (csFilePath) => {
               console.error(`Error writing JSON: ${err.message}`);
             } else {
               console.log(`XML to JSON conversion complete.`);
-              migFunction();
+              setMasterLocale();
             }
           });
         }

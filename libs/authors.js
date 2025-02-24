@@ -32,7 +32,9 @@ var authorsFolderPath = path.resolve(
  */
 if (!fs.existsSync(authorsFolderPath)) {
   mkdirp.sync(authorsFolderPath);
-  helper.writeFile(path.join(authorsFolderPath, authorConfig.fileName));
+  helper.writeFile(path.join(authorsFolderPath, `${global.masterLocale}.json`));
+} else {
+  helper.writeFile(path.join(authorsFolderPath, `${global.masterLocale}.json`));
 }
 
 function ExtractAuthors() {}
@@ -44,7 +46,7 @@ ExtractAuthors.prototype = {
       try {
         var slugRegExp = new RegExp('[^a-z0-9_-]+', 'g');
         var authordata = helper.readFile(
-          path.join(authorsFolderPath, authorConfig.fileName)
+          path.join(authorsFolderPath, `${global.masterLocale}.json`)
         );
 
         authorDetails.map(function (data) {
@@ -64,10 +66,11 @@ ExtractAuthors.prototype = {
             email: data['wp:author_email'],
             first_name: data['wp:author_first_name'],
             last_name: data['wp:author_last_name'],
+            publish_details: [],
           };
         });
         fs.writeFileSync(
-          path.join(authorsFolderPath, authorConfig.fileName),
+          path.join(authorsFolderPath, `${global.masterLocale}.json`),
           JSON.stringify(authordata, null, 4)
         );
         console.log(

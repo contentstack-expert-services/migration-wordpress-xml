@@ -11,14 +11,20 @@ const helper = require('../utils/helper');
 const assetConfig = config.modules.asset;
 const assetFolderPath = path.resolve(config.data, assetConfig.dirName);
 const assetMasterFolderPath = path.resolve(config.data, 'logs', 'assets');
-const failedJSON =
-  helper.readFile(path.join(assetMasterFolderPath, 'wp_failed.json')) || {};
 
+// Ensure both directories exist
 if (!existsSync(assetFolderPath)) {
   mkdirp.sync(assetFolderPath);
   helper.writeFile(path.join(assetFolderPath, assetConfig.fileName));
+}
+
+// Ensure the logs/assets directory exists
+if (!existsSync(assetMasterFolderPath)) {
   mkdirp.sync(assetMasterFolderPath);
 }
+
+const failedJSON =
+  helper.readFile(path.join(assetMasterFolderPath, 'wp_failed.json')) || {};
 
 let assetData = {};
 

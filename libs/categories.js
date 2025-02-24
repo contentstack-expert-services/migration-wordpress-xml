@@ -35,7 +35,13 @@ var categoryFolderPath = path.resolve(
  */
 if (!fs.existsSync(categoryFolderPath)) {
   mkdirp.sync(categoryFolderPath);
-  helper.writeFile(path.join(categoryFolderPath, categoryConfig.fileName));
+  helper.writeFile(
+    path.join(categoryFolderPath, `${global.masterLocale}.json`)
+  );
+} else {
+  helper.writeFile(
+    path.join(categoryFolderPath, `${global.masterLocale}.json`)
+  );
 }
 
 function ExtractCategories() {}
@@ -67,7 +73,7 @@ ExtractCategories.prototype = {
     return when.promise(function (resolve, reject) {
       try {
         var categorydata = helper.readFile(
-          path.join(categoryFolderPath, categoryConfig.fileName)
+          path.join(categoryFolderPath, `${global.masterLocale}.json`)
         );
 
         if (categoryDetails.length === undefined) {
@@ -86,6 +92,7 @@ ExtractCategories.prototype = {
             nicename: `${categoryDetails['wp:category_nicename']}`,
             description: description,
             parent: '',
+            publish_details: [],
           };
         } else {
           categoryDetails.map(function (data) {
@@ -109,20 +116,19 @@ ExtractCategories.prototype = {
               url: url,
               nicename: nicename,
               description: description,
+              publish_details: [],
             };
             self.parentCategoires(`category_${uid}`, data, categorydata);
 
             fs.writeFileSync(
-              path.join(categoryFolderPath, categoryConfig.fileName),
+              path.join(categoryFolderPath, `${global.masterLocale}.json`),
               JSON.stringify(categorydata, null, 4)
             );
           });
         }
         console.log(
-          chalk.green(
-            `${categoryDetails.length}`,
-            ' Categories exported successfully'
-          )
+          chalk.green(`${categoryDetails.length}`),
+          ' Categories exported successfully'
         );
         resolve();
       } catch (error) {

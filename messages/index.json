@@ -1,9 +1,11 @@
 {
   "wordpress": {
     "promptFileName": "Enter File Name",
-    "promptFilePath": "Enter File Path (eg: C:/home/admin/filePath)",
+    "promptFilePath": "Enter File Path (eg: C:/home/admin/filePath): ",
     "promptXmlError": "Use only .xml Extension file only",
-    "promptSqlError": "Use only .sql Extension file only",
-    "promptXMLDescription": "For WordPress export, refer this doc -> https://wordpress.com/export/"
+    "promptMasterLocale": "Enter the master locale code: ",
+    "promptPrefix": "Add a custom content-type name if you want (optional): ",
+    "promptXMLDescription": "For WordPress export, refer this doc -> https://wordpress.com/export/",
+    "promptLocaleError": "\nPlease enter the valid master locale code! or refer to this link: https://www.contentstack.com/docs/developers/multilingual-content/list-of-supported-languages"
   }
 }

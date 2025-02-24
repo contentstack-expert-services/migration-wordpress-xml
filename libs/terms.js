@@ -32,7 +32,9 @@ var termsFolderPath = path.resolve(
  */
 if (!fs.existsSync(termsFolderPath)) {
   mkdirp.sync(termsFolderPath);
-  helper.writeFile(path.join(termsFolderPath, termsConfig.fileName));
+  helper.writeFile(path.join(termsFolderPath, `${global.masterLocale}.json`));
+} else {
+  helper.writeFile(path.join(termsFolderPath, `${global.masterLocale}.json`));
 }
 
 function ExtractTerms() {}
@@ -43,7 +45,7 @@ ExtractTerms.prototype = {
     return when.promise(function (resolve, reject) {
       try {
         var termsdata = helper.readFile(
-          path.join(termsFolderPath, termsConfig.fileName)
+          path.join(termsFolderPath, `${global.masterLocale}.json`)
         );
 
         termsDetails.map(function (data, index) {
@@ -59,14 +61,16 @@ ExtractTerms.prototype = {
             url: url,
             taxonomy: taxonomy,
             slug: slug,
+            publish_details: [],
           };
           fs.writeFileSync(
-            path.join(termsFolderPath, termsConfig.fileName),
+            path.join(termsFolderPath, `${global.masterLocale}.json`),
             JSON.stringify(termsdata, null, 4)
           );
         });
         console.log(
-          chalk.green(`${termsDetails.length} Terms exported successfully`)
+          chalk.green(`${termsDetails.length}`),
+          ' Terms exported successfully'
         );
         resolve();
       } catch (error) {

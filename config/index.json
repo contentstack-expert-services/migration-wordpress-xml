@@ -3,6 +3,7 @@
   "backup": "./backupMigrationData",
   "xml_filename": "",
   "json_file": "",
+  "masterLocale": "",
   "json_filename": "data.json",
   "entryfolder": "entries",
   "modules": {
@@ -12,24 +13,21 @@
       "masterfile": "contenttypes.json"
     },
     "authors": {
-      "dirName": "authors",
-      "fileName": "en-us.json",
-      "masterfile": "authors.json"
+      "dirName": "authors"
     },
     "categories": {
-      "dirName": "categories",
-      "fileName": "en-us.json",
-      "masterfile": "categories.json"
+      "dirName": "categories"
     },
     "tag": {
-      "dirName": "tag",
-      "fileName": "en-us.json",
-      "masterfile": "tag.json"
+      "dirName": "tag"
     },
     "terms": {
-      "dirName": "terms",
-      "fileName": "en-us.json",
-      "masterfile": "terms.json"
+      "dirName": "terms"
+    },
+    "locale": {
+      "dirName": "locales",
+      "fileName": "locales.json",
+      "masterfile": "master-locale.json"
     },
     "references": {
       "dirName": "reference",
@@ -42,9 +40,7 @@
       "masterfile": "url_master.json"
     },
     "posts": {
-      "dirName": "posts",
-      "fileName": "en-us.json",
-      "masterfile": "posts.json"
+      "dirName": "posts"
     }
   }
 }
