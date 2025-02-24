@@ -110,11 +110,8 @@ const setMasterLocale = async () => {
       type: 'input',
       name: 'masterLocale',
       message: messages.promptMasterLocale,
+      default: 'en-us',
       validate: (masterLocale) => {
-        if (!masterLocale || masterLocale.trim() === '') {
-          console.log(chalk.red(localErrorMessage));
-          return false;
-        }
         this.name = masterLocale;
         return true;
       },
