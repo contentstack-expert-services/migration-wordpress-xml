@@ -75,13 +75,13 @@ csdx auth:login
 
 **Step 8:** Choose the organization.
 
-**Step 9:** Decide which stack you want to use for import..
+**Step 9:** Decide which stack you want to use for import.
 
 **Step 10:** Go to the settings.
 
 **Step 11:** Select tokens option
 
-**Setp 12:** Go to the Management Tokens tab and click on the +Management Tokens button
+**Step 12:** Go to the Management Tokens tab and click on the +Management Tokens button
 
 **Step 13:** Enter the required field data and permit to Write
 
@@ -98,11 +98,11 @@ csdx auth:login
 
 1. Add the name of the management token
 2. Add the API Key of the stack that you want to export
-3. Add the management token that was created when the user created the management token from the website.
+3. Add the management token created when the user created the management token from the website.
 
 **Step 19:** [Now that the management token has been added to the new or existing stack, we must run the import script. ](https://www.contentstack.com/docs/developers/cli/import-content-using-the-cli#import-content-using-management-token-and-parameters)
 
-`csdx cm:stacks:import -a <`
+`csdx cm:stacks:import -a <<alias>> -d <<file_path>>`
 
 1. Here <`<alias>`> is a name that you have entered in the management token, and `<<file_path>>` will be the path where your data is saved.
 
@@ -112,4 +112,4 @@ csdx auth:login
 
 1. Here `<<stack_api_key>>` is a stack API key, which you can find in the stack settings, and `<<file_path>>` will be the path where your data is saved.
 
-**Step 21:** We successfully migrated the import data into a new or existing stack by doing this.
+**Step 21:** This successfully migrated the import data into a new or existing stack.
